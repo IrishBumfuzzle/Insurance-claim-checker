@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Modern professional color theme CSS with fixed file uploader
+# Modern professional color theme CSS with functional drag-and-drop
 st.markdown("""
 <style>
     /* Import Google Fonts */
@@ -54,68 +54,32 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
-    /* COMPLETELY HIDE FILE UPLOADER WHITE BOXES */
-    .stFileUploader > div {
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-
-    .stFileUploader > div > div {
-        background: none !important;
-        border: none !important;
-        padding: 0 !important;
-    }
-
-    .stFileUploader > div > div > div {
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-
-    .stFileUploader > div > div > div > div {
-        display: none !important;
-        background: none !important;
-    }
-
-    /* Hide default Streamlit file uploader styling */
-    .stFileUploader > div > div > div > div {
-        display: none !important;
-    }
-
-    /* Hide the default file uploader label */
-    .stFileUploader > label {
-        display: none !important;
-    }
-
-    /* Custom file uploader container */
+    /* COMPLETELY HIDE STREAMLIT FILE UPLOADER */
     .stFileUploader {
-        position: relative;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: none !important;
-        border: none !important;
+        position: absolute !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        z-index: -1 !important;
     }
 
-    /* Style the actual file input */
-    .stFileUploader input[type="file"] {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 10;
+    .stFileUploader > div,
+    .stFileUploader > div > div,
+    .stFileUploader > div > div > div,
+    .stFileUploader > div > div > div > div {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 
-    /* Remove any white backgrounds from containers */
-    div[data-testid="stFileUploader"] {
-        background: none !important;
-        border: none !important;
-    }
-
-    div[data-testid="stFileUploader"] > div {
-        background: none !important;
-        border: none !important;
+    /* Hide all Streamlit uploader elements */
+    div[data-testid="stFileUploader"],
+    div[data-testid="stFileUploader"] > div,
+    div[data-testid="stFileUploader"] div {
+        display: none !important;
     }
 
     /* Main header styling */
@@ -133,7 +97,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* Upload section styling - this will replace the white box */
+    /* Upload section styling - FUNCTIONAL drag and drop */
     .upload-section {
         border: 2px dashed var(--border-accent);
         border-radius: var(--border-radius-lg);
@@ -153,15 +117,28 @@ st.markdown("""
 
     .upload-section:hover {
         border-color: var(--primary-color);
-        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%);
+        background: linear-gradient(165deg, var(--primary-hover) 100%, var(--accent-color) 0%);
         transform: translateY(-2px);
         box-shadow: var(--shadow-lg);
     }
 
     .upload-section.dragover {
-        border-color: var(--accent-color);
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-color: #10b981;
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
         box-shadow: var(--shadow-lg);
+        border-style: solid;
+    }
+
+    .upload-section.dragover .upload-text {
+        color: #065f46 !important;
+    }
+
+    .upload-section.dragover .upload-subtext {
+        color: #065f46 !important;
+    }
+
+    .upload-section.dragover .upload-icon {
+        color: #059669 !important;
     }
 
     /* Upload icon and text styling */
@@ -191,6 +168,18 @@ st.markdown("""
         padding: 0.5rem 1rem;
         border-radius: var(--border-radius);
         border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Hidden file input */
+    .hidden-file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
     }
 
     /* Success message styling */
@@ -431,6 +420,65 @@ st.markdown("""
         }
     }
 </style>
+
+<script>
+// JavaScript for drag and drop functionality
+function initDragAndDrop() {
+    const uploadSection = document.querySelector('.upload-section');
+    const fileInput = document.querySelector('.hidden-file-input');
+
+    if (uploadSection && fileInput) {
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        uploadSection.addEventListener('drop', handleDrop, false);
+        uploadSection.addEventListener('click', () => fileInput.click(), false);
+    }
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        uploadSection.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+        uploadSection.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+            // Trigger file input change event
+            fileInput.files = files;
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initDragAndDrop);
+// Also initialize after Streamlit reruns
+setTimeout(initDragAndDrop, 100);
+</script>
 """, unsafe_allow_html=True)
 
 
@@ -560,9 +608,10 @@ def show_input_page():
     with col1:
         st.subheader("📷 Upload Car Image")
 
-        # Custom upload area that replaces the white box
+        # Custom functional upload area
         st.markdown("""
-        <div class="upload-section">
+        <div class="upload-section" id="upload-area">
+            <input type="file" class="hidden-file-input" accept=".jpg,.jpeg,.png,.webp" multiple="false">
             <div class="upload-icon">📷</div>
             <div class="upload-text">Click to upload or drag and drop</div>
             <div class="upload-subtext">Select your car damage image</div>
@@ -570,13 +619,39 @@ def show_input_page():
         </div>
         """, unsafe_allow_html=True)
 
-        # Hidden file uploader that works with our custom styling
+        # Use session state to handle file upload
         uploaded_image = st.file_uploader(
             "Upload car image",
             type=['jpg', 'jpeg', 'png', 'webp'],
             label_visibility="hidden",
             key="image_uploader"
         )
+
+        # Add JavaScript to sync the custom upload with Streamlit's file uploader
+        st.markdown("""
+        <script>
+        // Sync custom file input with Streamlit file uploader
+        setTimeout(() => {
+            const customInput = document.querySelector('.hidden-file-input');
+            const streamlitInput = document.querySelector('input[type="file"][accept*="jpg"]');
+
+            if (customInput && streamlitInput) {
+                customInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        // Create new file list for Streamlit input
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(e.target.files[0]);
+                        streamlitInput.files = dataTransfer.files;
+
+                        // Trigger change event on Streamlit input
+                        const changeEvent = new Event('change', { bubbles: true });
+                        streamlitInput.dispatchEvent(changeEvent);
+                    }
+                });
+            }
+        }, 500);
+        </script>
+        """, unsafe_allow_html=True)
 
         # Display uploaded image with validation
         if uploaded_image is not None:
