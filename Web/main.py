@@ -103,7 +103,7 @@ st.markdown("""
         padding: 3rem 2rem;
         text-align: center;
         margin: 1.5rem 0;
-        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%);
+        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%)  ;
         transition: all 0.3s ease;
         position: relative;
         cursor: pointer;
@@ -116,7 +116,7 @@ st.markdown("""
 
     .upload-section:hover {
         border-color: var(--primary-color);
-        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%);
+        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%)  ;
         transform: translateY(-2px);
         box-shadow: var(--shadow-lg);
     }
@@ -197,7 +197,7 @@ st.markdown("""
 
     /* Info box styling */
     .info-box {
-        background: #fffbeb;
+        background: #fffbeb
         border: 1px solid #93c5fd;
         border-left: 4px solid var(--primary-color);
         padding: 1.5rem;
@@ -301,6 +301,21 @@ st.markdown("""
         font-weight: 600 !important;
         font-size: 1.1rem !important;
         margin-bottom: 0.75rem !important;
+    }
+
+    /* Custom dark text area container */
+    .dark-textarea-container {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        border: 1px solid #4a5568;
+        border-radius: var(--border-radius-lg);
+        padding: 1rem;
+        margin: 1rem 0;
+        box-shadow: var(--shadow-md);
+    }
+
+    .dark-textarea-container:hover {
+        border-color: var(--accent-color);
+        box-shadow: var(--shadow-lg);
     }
 
     /* Progress bar styling */
