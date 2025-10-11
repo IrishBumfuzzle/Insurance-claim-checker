@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image
 import time
-import car
 import io
 
 # Configure the page with enhanced settings
@@ -30,7 +29,7 @@ st.markdown("""
         --background-primary: #ffffff;
         --background-secondary: #f8fafc;
         --background-tertiary: #f1f5f9;
-        --text-primary: #ffffff;
+        --text-primary: #1f2937;
         --text-secondary: #64748b;
         --text-muted: #94a3b8;
         --border-color: #e2e8f0;
@@ -55,6 +54,30 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
+    /* COMPLETELY HIDE FILE UPLOADER WHITE BOXES */
+    .stFileUploader > div {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .stFileUploader > div > div {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    .stFileUploader > div > div > div {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .stFileUploader > div > div > div > div {
+        display: none !important;
+        background: none !important;
+    }
+
     /* Hide default Streamlit file uploader styling */
     .stFileUploader > div > div > div > div {
         display: none !important;
@@ -70,6 +93,8 @@ st.markdown("""
         position: relative;
         margin: 0 !important;
         padding: 0 !important;
+        background: none !important;
+        border: none !important;
     }
 
     /* Style the actual file input */
@@ -80,6 +105,17 @@ st.markdown("""
         opacity: 0;
         cursor: pointer;
         z-index: 10;
+    }
+
+    /* Remove any white backgrounds from containers */
+    div[data-testid="stFileUploader"] {
+        background: none !important;
+        border: none !important;
+    }
+
+    div[data-testid="stFileUploader"] > div {
+        background: none !important;
+        border: none !important;
     }
 
     /* Main header styling */
@@ -104,7 +140,7 @@ st.markdown("""
         padding: 3rem 2rem;
         text-align: center;
         margin: 1.5rem 0;
-        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%)  ;
+        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%);
         transition: all 0.3s ease;
         position: relative;
         cursor: pointer;
@@ -117,7 +153,7 @@ st.markdown("""
 
     .upload-section:hover {
         border-color: var(--primary-color);
-        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%)  ;
+        background: linear-gradient(165deg, var(--primary-color) 100%, var(--accent-color) 0%);
         transform: translateY(-2px);
         box-shadow: var(--shadow-lg);
     }
@@ -131,30 +167,30 @@ st.markdown("""
     /* Upload icon and text styling */
     .upload-icon {
         font-size: 3rem;
-        color: var(--text-secondary);
+        color: white;
         margin-bottom: 1rem;
     }
 
     .upload-text {
         font-size: 1.125rem;
         font-weight: 600;
-        color: var(--text-primary);
+        color: white;
         margin-bottom: 0.5rem;
     }
 
     .upload-subtext {
         font-size: 0.875rem;
-        color: var(--text-primary);
+        color: white;
         margin-bottom: 1rem;
     }
 
     .upload-formats {
         font-size: 0.75rem;
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.8);
+        color: #e2e8f0;
+        background: rgba(255, 255, 255, 0.2);
         padding: 0.5rem 1rem;
         border-radius: var(--border-radius);
-        border: 1px solid var(--border-color);
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     /* Success message styling */
@@ -198,7 +234,7 @@ st.markdown("""
 
     /* Info box styling */
     .info-box {
-        background: #fffbeb
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
         border: 1px solid #93c5fd;
         border-left: 4px solid var(--primary-color);
         padding: 1.5rem;
@@ -304,51 +340,6 @@ st.markdown("""
         margin-bottom: 0.75rem !important;
     }
 
-    /* Custom dark text area container */
-    .dark-textarea-container {
-        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-        border: 1px solid #4a5568;
-        border-radius: var(--border-radius-lg);
-        padding: 1rem;
-        margin: 1rem 0;
-        box-shadow: var(--shadow-md);
-    }
-
-    .dark-textarea-container:hover {
-        border-color: var(--accent-color);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Progress bar styling */
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
-        border-radius: var(--border-radius);
-    }
-
-    /* Metric styling */
-    [data-testid="metric-container"] {
-        background: linear-gradient(135deg, var(--background-primary) 0%, var(--background-secondary) 100%);
-        border: 1px solid var(--border-color);
-        padding: 1rem;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-sm);
-    }
-
-    /* Image styling */
-    .stImage > img {
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-md);
-        border: 1px solid var(--border-color);
-    }
-
-    /* Divider styling */
-    hr {
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent 0%, var(--border-accent) 50%, transparent 100%);
-        margin: 2rem 0;
-    }
-
     /* Character counter styling with better contrast */
     .char-counter {
         font-size: 0.875rem;
@@ -370,6 +361,19 @@ st.markdown("""
         color: var(--error-color);
         background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
         border-color: #fca5a5;
+    }
+
+    /* Progress bar styling */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border-radius: var(--border-radius);
+    }
+
+    /* Image styling */
+    .stImage > img {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
     }
 
     /* Footer styling */
@@ -403,24 +407,6 @@ st.markdown("""
 
     .status-error {
         background-color: var(--error-color);
-    }
-
-    /* Dark theme for text content in results */
-    .dark-content-box {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        color: #e2e8f0;
-        padding: 1.5rem;
-        border-radius: var(--border-radius);
-        border: 1px solid #475569;
-        margin: 1rem 0;
-        box-shadow: var(--shadow-md);
-        font-family: 'Inter', sans-serif;
-        line-height: 1.6;
-    }
-
-    .dark-content-box p {
-        color: #e2e8f0 !important;
-        margin-bottom: 0.75rem;
     }
 
     /* Responsive design */
@@ -507,57 +493,43 @@ def validate_description(description):
 def show_results_page():
     st.markdown('<h1 class="main-header">📊 Analysis Results</h1>', unsafe_allow_html=True)
 
-    # Create columns for better layout
-    col1, col2 = st.columns([1, 1], gap="large")
-
-    with col1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.subheader("📷 Uploaded Image")
-        if st.session_state.uploaded_image:
-            st.image(
-                st.session_state.uploaded_image,
-                caption="Analyzed Car Image",
-                use_column_width=True,
-                output_format="auto"
-            )
-
-        # Image details
-        with st.expander("📋 Image Details", expanded=False):
-            if st.session_state.uploaded_image:
-                img = st.session_state.uploaded_image
-                col_a, col_b = st.columns(2)
-                with col_a:
-                    st.metric("Width", f"{img.size[0]}px")
-                    st.metric("Format", img.format or "Unknown")
-                with col_b:
-                    st.metric("Height", f"{img.size[1]}px")
-                    st.metric("Mode", img.mode)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.subheader("📝 Accident Description")
-        # Use dark content box for description display
-        st.markdown(f"""
-        <div class="dark-content-box">
-            {st.session_state.accident_description}
+    # Display analysis results first
+    st.markdown('<div class="analysis-results">', unsafe_allow_html=True)
+    st.subheader("🔍 Damage Analysis Report")
+    if st.session_state.result:
+        # Display the natural English report
+        st.markdown(st.session_state.result)
+    else:
+        st.markdown("""
+        <div class="warning-message">
+            <span class="status-indicator status-warning"></span>
+            No analysis results available
         </div>
         """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        # Analysis results
-        st.markdown('<div class="analysis-results">', unsafe_allow_html=True)
-        st.subheader("🔍 Analysis Results")
-        if st.session_state.result:
-            st.markdown(st.session_state.result)
-        else:
-            st.markdown("""
-            <div class="warning-message">
-                <span class="status-indicator status-warning"></span>
-                No analysis results available
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.divider()
+
+    # Show processed/edited image after results
+    if st.session_state.uploaded_image:
+        st.subheader("📷 Processed Image")
+        st.image(
+            st.session_state.uploaded_image,
+            caption="Analyzed Image (scaled for display)",
+            use_column_width=False,
+            width=400  # Fixed width to scale down the image
+        )
+
+        # Image details in an expander
+        with st.expander("📋 Image Details", expanded=False):
+            img = st.session_state.uploaded_image
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.metric("Display Width", f"{img.size[0]}px")
+                st.metric("Format", img.format or "Unknown")
+            with col_b:
+                st.metric("Display Height", f"{img.size[1]}px")
+                st.metric("Mode", img.mode)
 
     st.divider()
 
@@ -739,12 +711,12 @@ Example: "At 3:30 PM on Main Street, I was rear-ended while stopped at a red lig
                         import car
                         progress_bar.progress(50)
 
-                        result = car.process_accident_report(uploaded_image, accident_description)
+                        result_text, processed_image = car.process_accident_report(uploaded_image, accident_description)
                         progress_bar.progress(75)
 
                         # Save to session state
-                        st.session_state.result = result
-                        st.session_state.uploaded_image = Image.open(uploaded_image)
+                        st.session_state.result = result_text
+                        st.session_state.uploaded_image = processed_image
                         st.session_state.accident_description = accident_description
                         st.session_state.report_submitted = True
 
@@ -764,7 +736,7 @@ Example: "At 3:30 PM on Main Street, I was rear-ended while stopped at a red lig
                         st.markdown("""
                         <div class="error-message">
                             <span class="status-indicator status-error"></span>
-                            Error: 'accident_report' module not found. Please ensure the processing module is available.
+                            Error: 'car' module not found. Please ensure the processing module is available.
                         </div>
                         """, unsafe_allow_html=True)
                     except Exception as e:
