@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import time
+import car
 import io
 
 # Configure the page with enhanced settings
@@ -735,7 +736,7 @@ Example: "At 3:30 PM on Main Street, I was rear-ended while stopped at a red lig
                         time.sleep(0.5)
 
                         # Import and process
-                        import accident_report as car
+                        import car
                         progress_bar.progress(50)
 
                         result = car.process_accident_report(uploaded_image, accident_description)
