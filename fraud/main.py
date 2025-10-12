@@ -6,6 +6,46 @@ import numpy as np
 from urllib.request import urlopen
 import json
 from geopy.geocoders import Nominatim
+import sys
+import subprocess
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize models directory
+MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+os.makedirs(MODELS_DIR, exist_ok=True)
+
+# Check for required models
+MODEL_ELA_PATH = os.path.join(MODELS_DIR, 'model_ela.h5')
+MODEL_WEATHER_PATH = os.path.join(MODELS_DIR, 'Weather_Model.h5')
+
+def ensure_models_exist():
+    """Check if models exist, create dummy models if they don't"""
+    required_models = [MODEL_ELA_PATH, MODEL_WEATHER_PATH]
+    missing_models = [model for model in required_models if not os.path.exists(model)]
+    
+    if missing_models:
+        logger.warning(f"Missing models: {missing_models}")
+        try:
+            # Try to create dummy models
+            logger.info("Creating dummy models...")
+            dummy_script_path = os.path.join(os.path.dirname(__file__), "create_dummy_models.py")
+            if os.path.exists(dummy_script_path):
+                result = subprocess.run([sys.executable, dummy_script_path], 
+                                       capture_output=True, text=True)
+                logger.info(f"Dummy model creation output: {result.stdout}")
+                if result.stderr:
+                    logger.error(f"Error creating dummy models: {result.stderr}")
+            else:
+                logger.error(f"Dummy model script not found: {dummy_script_path}")
+        except Exception as e:
+            logger.error(f"Failed to create dummy models: {str(e)}")
+
+# Ensure models are available
+ensure_models_exist()
 
 class_weather = ['Lightning', 'Rainy', 'Snow', 'Sunny']
 class_ELA = ['Real', 'Tampered']
@@ -42,10 +82,14 @@ def check_img(image_name):
 
 def detect_ELA(img_name):
     global ela_result
-    np_img_input, ela_result = prepare_image_for_ela(img_name)
-    ELA_model = load_model('models/model_ela.h5')
-    Y_predicted = ELA_model.predict(np_img_input, verbose=0)
-    return class_ELA[np.argmax(Y_predicted[0])], round(np.max(Y_predicted[0]) * 100)
+    try:
+        np_img_input, ela_result = prepare_image_for_ela(img_name)
+        ELA_model = load_model(MODEL_ELA_PATH)
+        Y_predicted = ELA_model.predict(np_img_input, verbose=0)
+        return class_ELA[np.argmax(Y_predicted[0])], round(np.max(Y_predicted[0]) * 100)
+    except Exception as e:
+        logger.error(f"Error in ELA detection: {str(e)}")
+        return class_ELA[0], 0  # Return "Real" with 0 confidence as fallback
 
 weatherDict = {}
 weatherDict[0] = 'Sunny'
@@ -100,10 +144,14 @@ def prerpare_img_for_weather(image_path):
     return np.expand_dims(img, axis=0)
 
 def detect_weather(img_name):
-    np_img_input = prerpare_img_for_weather(img_name)
-    model_Weather = load_model('models/Weather_Model.h5')
-    Y_predicted = model_Weather.predict(np_img_input, verbose=0)
-    return class_weather[np.argmax(Y_predicted[0])], round(np.max(Y_predicted[0]) * 100)
+    try:
+        np_img_input = prerpare_img_for_weather(img_name)
+        model_Weather = load_model(MODEL_WEATHER_PATH)
+        Y_predicted = model_Weather.predict(np_img_input, verbose=0)
+        return class_weather[np.argmax(Y_predicted[0])], round(np.max(Y_predicted[0]) * 100)
+    except Exception as e:
+        logger.error(f"Error in weather detection: {str(e)}")
+        return class_weather[3], 0  # Return "Sunny" with 0 confidence as fallback
 
 def org_weather(img_name, image_coords):
     global outdoor

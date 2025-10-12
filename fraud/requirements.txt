@@ -4,4 +4,8 @@ pillow==10.4.0
 numpy==1.26.4
 geopy==2.4.1
 requests
+fastapi==0.110.0
+uvicorn==0.27.1
+pydantic==2.6.3
+python-multipart
 # tensorflow==2.15.0

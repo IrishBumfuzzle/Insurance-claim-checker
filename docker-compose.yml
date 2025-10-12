@@ -6,9 +6,7 @@ services:
     # image: megathon2k25:latest
     volumes:
       - ./Web:/app
-      - type: bind
-        source: ../images
-        target: /app/images
+      - ./images:/app/images
     ports:
       - "8002:8000"
     environment:
@@ -23,9 +21,7 @@ services:
     image: ultralytics:latest
     volumes:
       - ./ultralytics:/app
-      - type: bind
-        source: ../images
-        target: /app/images
+      - ./images:/app/images
     ports:
       - "8000:8000"
     environment:
@@ -39,11 +35,9 @@ services:
     image: fraud:latest
     volumes:
       - ./fraud:/app
-      # - type: bind
-      #   source: ../images
-      #   target: /app/images
+      - ./images:/app/images
     ports:
       - "8001:8000"
     environment:
       - PYTHONUNBUFFERED=1
-    # command: ["uvicorn", "main:app", "--host", "0.0.0.0"]
+    command: ["python", "-m", "uvicorn", "fraud_detector:app", "--host", "0.0.0.0"]
