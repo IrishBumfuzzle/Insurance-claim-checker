@@ -1,0 +1,33 @@
+services:
+  app:
+    build:
+      context: ./Web
+      dockerfile: Dockerfile
+    # image: megathon2k25:latest
+    volumes:
+      - ./Web:/app
+      - type: bind
+        source: ../images
+        target: /app/images
+    ports:
+      - "8002:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    # restart: unless-stopped
+    command: ["streamlit", "run", "main.py", "--server.port=8000"]
+
+  ultralytics:
+    build:
+      context: ./ultralytics
+      dockerfile: Dockerfile
+    image: ultralytics:latest
+    volumes:
+      - ./ultralytics:/app
+      - type: bind
+        source: ../images
+        target: /app/images
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["uvicorn", "damage:app", "--host", "0.0.0.0"] 
