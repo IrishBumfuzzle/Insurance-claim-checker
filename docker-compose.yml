@@ -31,3 +31,19 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     command: ["uvicorn", "damage:app", "--host", "0.0.0.0"] 
+
+  fraud:
+    build:
+      context: ./fraud
+      dockerfile: Dockerfile
+    image: fraud:latest
+    volumes:
+      - ./fraud:/app
+      # - type: bind
+      #   source: ../images
+      #   target: /app/images
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    # command: ["uvicorn", "main:app", "--host", "0.0.0.0"]

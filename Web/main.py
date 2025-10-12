@@ -165,7 +165,9 @@ def new_report_page(db, current_user):
 
         with col2:
             st.subheader("📍 Accident Details")
-            location = st.text_input("Accident Location *", placeholder="Main St & 1st Ave")
+            st.subheader("🌍 Accident Location (Coordinates)")
+            latitude = st.text_input("Latitude *", placeholder="e.g. 28.6139")
+            longitude = st.text_input("Longitude *", placeholder="e.g. 77.2090")
 
             # Multiple image upload
             st.subheader("📷 Upload Vehicle Images")
@@ -214,7 +216,7 @@ def new_report_page(db, current_user):
 
         if submitted:
             # Validation
-            if not license_number or not description or not location or not uploaded_images:
+            if not license_number or not description or not latitude or not longitude or not uploaded_images:
                 st.markdown(
                     '<div class="error-box">❌ Please fill in all required fields (*) and upload at least one image</div>',
                     unsafe_allow_html=True)
