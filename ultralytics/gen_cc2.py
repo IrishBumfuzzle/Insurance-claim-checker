@@ -240,7 +240,7 @@ def generate_gradcam(model, image_path, output_path):
         traceback.print_exc()
         return False
 
-images_dir = os.path.join(os.path.dirname(__file__), "images")
+images_dir = os.path.join(os.path.dirname(__file__), "image/predict")
 grade_cam_dir = os.path.join(os.path.dirname(__file__), "grade_cam")
 os.makedirs(grade_cam_dir, exist_ok=True)
 
@@ -270,7 +270,7 @@ for img_file in sorted(os.listdir(images_dir)):
             output_dict[class_name] = max(output_dict[class_name], confidence)
             print(f"  {img_file}: {class_name} (confidence: {confidence:.4f})")
     
-    gradcam_path = os.path.join(grade_cam_dir, f"gradcam_{img_file}")
+    gradcam_path = os.path.join(grade_cam_dir, f"{img_file}")
     generate_gradcam(model, img_path, gradcam_path)
 
 print("=" * 80)

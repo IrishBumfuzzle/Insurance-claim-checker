@@ -26,13 +26,16 @@ db = AccidentDatabase()
 #         return None, f"Error: {str(e)}", None, None
 
 def damage_assess(img_path):
+    import json
     url = "http://ultralytics:8000/damage"
     with open(img_path, "rb") as f:
         files = {"img": (os.path.basename(img_path), f, "image/jpeg")}
         response = requests.post(url, files=files)
     if response.status_code == 200:
         data = response.json()
-        return data.get("results"), data.get("annotated_image_path")
+        # Serialize the results to JSON string
+        results_json = json.dumps(data.get("results"))
+        return results_json, data.get("annotated_image_path")
     else:
         print(f"API error: {response.status_code} {response.text}")
         return None, None

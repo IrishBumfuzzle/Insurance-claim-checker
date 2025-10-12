@@ -4,6 +4,7 @@ import time
 from car import damage_assess
 import os
 import requests, io
+import json
 
 # Page configuration
 st.set_page_config(
@@ -227,7 +228,7 @@ def new_report_page(db, current_user):
                         results_list = []
                         images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'images'))
                         os.makedirs(images_dir, exist_ok=True)
-                        
+                        # Process images and show YOLO results first
                         for idx, uploaded_image in enumerate(uploaded_images):
                             # Save uploaded image to ../images folder
                             image_filename = f"upload_{idx}_{uploaded_image.name}"
@@ -252,6 +253,35 @@ def new_report_page(db, current_user):
                                     st.warning(f"API error fetching annotated image for {img_path}: {response.status_code}")
                             except Exception as e:
                                 st.warning(f"Error displaying annotated image from API: {e}")
+                        # Now call /gen API and show its output
+                        gen_api_url = "http://ultralytics:8000/gen"
+                        gen_response = requests.get(gen_api_url)
+                        if gen_response.status_code == 200:
+                            gen_data = gen_response.json()
+                            st.markdown(f"<div class='info-box'><b>/gen API Output:</b><br><pre>{gen_data.get('output','')}</pre></div>", unsafe_allow_html=True)
+                            if gen_data.get('error'):
+                                st.markdown(f"<div class='error-box'><b>/gen API Error:</b> {gen_data['error']}</div>", unsafe_allow_html=True)
+                            # Show cost-conf.json contents
+                            cost_conf_json = gen_data.get('cost_conf_json')
+                            if cost_conf_json:
+                                try:
+                                    cost_conf = json.loads(cost_conf_json)
+                                    st.markdown(f"<div class='info-box'><b>cost-conf.json:</b></div>", unsafe_allow_html=True)
+                                    st.json(cost_conf)
+                                    # For each image filename in cost-conf.json, fetch and show image from grade_cam/
+                                    for idx, (img_path, yolo_results, annotated_image_path) in enumerate(results_list):
+                                        grade_cam_path = img_path.replace("images", "grade_cam")
+                                        api_url = f"http://ultralytics:8000/damage?img_path={grade_cam_path}"
+                                        response = requests.get(api_url)
+                                        if response.status_code == 200:
+                                            annotated_img = Image.open(io.BytesIO(response.content))
+                                            st.image(annotated_img, width=300)
+                                        else:
+                                            st.warning(f"API error fetching grade_cam image {img_path}: {response.status_code}")
+                                except Exception as e:
+                                    st.warning(f"Error parsing cost-conf.json: {e}")
+                        else:
+                            st.markdown(f"<div class='error-box'>❌ /gen API call failed: {gen_response.status_code}</div>", unsafe_allow_html=True)
                     except Exception as e:
                         st.markdown(f'<div class="error-box">❌ Error processing report: {str(e)}</div>',
                                     unsafe_allow_html=True)
