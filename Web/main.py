@@ -150,6 +150,9 @@ def main():
 def new_report_page(db, current_user):
     st.header("📝 Submit New Accident Report")
 
+    # Get current timestamp
+    current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+
     # Create form
     with st.form("accident_form"):
         col1, col2 = st.columns(2)
@@ -224,6 +227,25 @@ def new_report_page(db, current_user):
                 st.markdown('<div class="error-box">❌ Description must be at least 20 characters</div>',
                             unsafe_allow_html=True)
             else:
+                # Save user input as raw JSON
+                user_input = {
+                    "license_number": license_number,
+                    "owner_name": owner_name,
+                    "vehicle_make": vehicle_make,
+                    "vehicle_model": vehicle_model,
+                    "vehicle_year": vehicle_year,
+                    "vehicle_color": vehicle_color,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "description": description,
+                    "uploaded_images": [img.name for img in uploaded_images],
+                    "submitted_by": current_user,
+                    "timestamp": current_time
+                }
+                description_json_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ultralytics', 'description.json'))
+                with open(description_json_path, "w") as f:
+                    json.dump(user_input, f, indent=2)
+
                 # Process report
                 with st.spinner(f"🔄 Processing accident report with {len(uploaded_images)} image(s)..."):
                     try:

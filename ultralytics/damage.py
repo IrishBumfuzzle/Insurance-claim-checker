@@ -28,8 +28,15 @@ import subprocess
 @app.get("/gen")
 async def run_gen_cc2():
     try:
-        # Run gen_cc2.py and capture output
-        result = subprocess.run(["python3", "gen_cc2.py"], cwd=os.path.dirname(__file__), capture_output=True, text=True)
+        # Path to description.json
+        description_json_path = os.path.join(os.path.dirname(__file__), "description.json")
+        # Run gen_cc2.py with description.json as the first argument
+        result = subprocess.run(
+            ["python3", "gen_cc2.py", description_json_path],
+            cwd=os.path.dirname(__file__),
+            capture_output=True,
+            text=True
+        )
         # Read cc/cost-conf.json
         json_path = os.path.join(os.path.dirname(__file__), "cc", "cost-conf.json")
         try:
